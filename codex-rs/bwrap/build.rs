@@ -34,8 +34,11 @@ fn try_build_bwrap() -> Result<(), String> {
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").map_err(|err| err.to_string())?);
     let out_dir = PathBuf::from(env::var("OUT_DIR").map_err(|err| err.to_string())?);
     let src_dir = resolve_bwrap_source_dir(&manifest_dir)?;
-    let libcap = pkg_config::Config::new()
+    let link_libcap_statically = matches!(env::var("CARGO_CFG_TARGET_ENV").as_deref(), Ok("musl"));
+    let mut libcap_config = pkg_config::Config::new();
+    let libcap = libcap_config
         .cargo_metadata(false)
+        .statik(link_libcap_statically)
         .probe("libcap")
         .map_err(|err| format!("libcap not available via pkg-config: {err}"))?;
 
@@ -70,7 +73,11 @@ fn try_build_bwrap() -> Result<(), String> {
         println!("cargo:rustc-link-search=native={}", link_path.display());
     }
     for lib in libcap.libs {
-        println!("cargo:rustc-link-lib={lib}");
+        if link_libcap_statically {
+            println!("cargo:rustc-link-lib=static={lib}");
+        } else {
+            println!("cargo:rustc-link-lib={lib}");
+        }
     }
     println!("cargo:rustc-cfg=bwrap_available");
     Ok(())
