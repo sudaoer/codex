@@ -108,6 +108,8 @@ def platform_asset_name() -> str:
     elif system == "linux":
         if machine in {"aarch64", "arm64"}:
             return "codex-package-aarch64-unknown-linux-musl.tar.gz"
+        if machine == "riscv64":
+            return "codex-package-riscv64gc-unknown-linux-musl.tar.gz"
         if machine in {"x86_64", "amd64"}:
             return "codex-package-x86_64-unknown-linux-musl.tar.gz"
     elif system == "windows":

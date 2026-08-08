@@ -604,6 +604,11 @@ def test_runtime_setup_reads_independent_runtime_pin_and_release_tags() -> None:
     ("system", "machine", "asset_name"),
     [
         ("Darwin", "arm64", "codex-package-aarch64-apple-darwin.tar.gz"),
+        (
+            "Linux",
+            "riscv64",
+            "codex-package-riscv64gc-unknown-linux-musl.tar.gz",
+        ),
         ("Linux", "x86_64", "codex-package-x86_64-unknown-linux-musl.tar.gz"),
         ("Windows", "AMD64", "codex-package-x86_64-pc-windows-msvc.tar.gz"),
     ],

@@ -18,6 +18,9 @@ function determineTargetTriple(platform, arch) {
       if (arch === "arm64") {
         return "aarch64-unknown-linux-musl";
       }
+      if (arch === "riscv64") {
+        return "riscv64gc-unknown-linux-musl";
+      }
       break;
     case "darwin":
       if (arch === "x64") {
