@@ -17,6 +17,13 @@ class DefaultTargetTest(unittest.TestCase):
         ):
             self.assertEqual(default_target(), "riscv64gc-unknown-linux-musl")
 
+    def test_riscv64a23_target_is_explicit(self) -> None:
+        from .targets import TARGET_SPECS
+
+        spec = TARGET_SPECS["riscv64a23-unknown-linux-gnu"]
+        self.assertTrue(spec.is_linux)
+        self.assertEqual(spec.dotslash_platform, "linux-riscv64a23")
+
 
 if __name__ == "__main__":
     unittest.main()

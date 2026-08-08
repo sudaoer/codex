@@ -83,6 +83,7 @@ alias(
         "@rules_rs//rs/platforms/config:aarch64-pc-windows-msvc": ":v8_150_4_0_aarch64_pc_windows_msvc",
         "@rules_rs//rs/platforms/config:aarch64-unknown-linux-gnu": ":v8_150_4_0_aarch64_unknown_linux_gnu_bazel",
         ":platform_aarch64_unknown_linux_musl": ":v8_150_4_0_aarch64_unknown_linux_musl_release_base",
+        "@rules_rs//rs/platforms/config:riscv64a23-unknown-linux-gnu": ":v8_150_4_0_riscv64a23_unknown_linux_gnu_bazel",
         "@rules_rs//rs/platforms/config:riscv64gc-unknown-linux-gnu": ":v8_150_4_0_riscv64gc_unknown_linux_gnu_bazel",
         ":platform_riscv64gc_unknown_linux_musl": ":v8_150_4_0_riscv64gc_unknown_linux_musl_release_base",
         "@rules_rs//rs/platforms/config:x86_64-apple-darwin": ":v8_150_4_0_x86_64_apple_darwin_bazel",
@@ -102,6 +103,7 @@ alias(
         "@rules_rs//rs/platforms/config:aarch64-pc-windows-msvc": ":src_binding_release_aarch64_pc_windows_msvc_150_4_0_release",
         "@rules_rs//rs/platforms/config:aarch64-unknown-linux-gnu": ":src_binding_release_aarch64_unknown_linux_gnu_150_4_0_release",
         ":platform_aarch64_unknown_linux_musl": ":src_binding_release_aarch64_unknown_linux_musl_150_4_0_release",
+        "@rules_rs//rs/platforms/config:riscv64a23-unknown-linux-gnu": ":src_binding_release_riscv64a23_unknown_linux_gnu_150_4_0_release",
         "@rules_rs//rs/platforms/config:riscv64gc-unknown-linux-gnu": ":src_binding_release_riscv64gc_unknown_linux_gnu_150_4_0_release",
         ":platform_riscv64gc_unknown_linux_musl": ":src_binding_release_riscv64gc_unknown_linux_musl_150_4_0_release",
         "@rules_rs//rs/platforms/config:x86_64-apple-darwin": ":src_binding_release_x86_64_apple_darwin_150_4_0_release",
@@ -319,6 +321,15 @@ cc_static_library(
 )
 
 cc_static_library(
+    name = "v8_150_4_0_riscv64a23_unknown_linux_gnu_bazel",
+    features = V8_STATIC_LIBRARY_FEATURES,
+    deps = [
+        ":rusty_v8_custom_libcxx_runtime",
+        ":v8_150_4_0_binding",
+    ],
+)
+
+cc_static_library(
     name = "v8_150_4_0_riscv64gc_unknown_linux_musl_release_base",
     features = V8_STATIC_LIBRARY_FEATURES,
     deps = [
@@ -384,6 +395,11 @@ filegroup(
 filegroup(
     name = "src_binding_release_riscv64gc_unknown_linux_gnu_150_4_0_release",
     srcs = ["@v8_crate_150_4_0//:src_binding_release_riscv64gc_unknown_linux_gnu"],
+)
+
+filegroup(
+    name = "src_binding_release_riscv64a23_unknown_linux_gnu_150_4_0_release",
+    srcs = ["@v8_crate_150_4_0//:src_binding_release_riscv64a23_unknown_linux_gnu"],
 )
 
 filegroup(
@@ -454,6 +470,14 @@ filegroup(
     srcs = [
         ":src_binding_release_riscv64gc_unknown_linux_gnu_150_4_0_release",
         ":v8_150_4_0_riscv64gc_unknown_linux_gnu_bazel",
+    ],
+)
+
+filegroup(
+    name = "rusty_v8_release_pair_riscv64a23_unknown_linux_gnu",
+    srcs = [
+        ":src_binding_release_riscv64a23_unknown_linux_gnu_150_4_0_release",
+        ":v8_150_4_0_riscv64a23_unknown_linux_gnu_bazel",
     ],
 )
 
@@ -534,6 +558,14 @@ filegroup(
     srcs = [
         ":src_binding_release_riscv64gc_unknown_linux_gnu_150_4_0_release",
         ":v8_150_4_0_riscv64gc_unknown_linux_gnu_bazel",
+    ],
+)
+
+filegroup(
+    name = "rusty_v8_sandbox_release_pair_riscv64a23_unknown_linux_gnu",
+    srcs = [
+        ":src_binding_release_riscv64a23_unknown_linux_gnu_150_4_0_release",
+        ":v8_150_4_0_riscv64a23_unknown_linux_gnu_bazel",
     ],
 )
 

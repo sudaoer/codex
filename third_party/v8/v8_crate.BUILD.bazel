@@ -40,6 +40,13 @@ filegroup(
     srcs = ["gen/src_binding_release_riscv64gc-unknown-linux-gnu.rs"],
 )
 
+# The Rust binding describes the V8 C++ API and is independent of the
+# instruction profile. The RVA23 archive uses the same generated binding.
+filegroup(
+    name = "src_binding_release_riscv64a23_unknown_linux_gnu",
+    srcs = ["gen/src_binding_release_riscv64gc-unknown-linux-gnu.rs"],
+)
+
 filegroup(
     name = "src_binding_release_x86_64_pc_windows_msvc",
     srcs = ["gen/src_binding_release_x86_64-pc-windows-msvc.rs"],

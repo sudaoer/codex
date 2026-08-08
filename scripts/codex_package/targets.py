@@ -92,6 +92,15 @@ TARGET_SPECS: dict[str, TargetSpec] = {
         is_linux=True,
         dotslash_platform="linux-riscv64",
     ),
+    # Rust's ratified RVA23U64 target is GNU-only today. Keep it separate from
+    # the broad rv64gc package so callers can opt into the mandatory V/RVA23
+    # instruction baseline explicitly.
+    "riscv64a23-unknown-linux-gnu": TargetSpec(
+        target="riscv64a23-unknown-linux-gnu",
+        is_windows=False,
+        is_linux=True,
+        dotslash_platform="linux-riscv64a23",
+    ),
     "riscv64gc-unknown-linux-musl": TargetSpec(
         target="riscv64gc-unknown-linux-musl",
         is_windows=False,

@@ -20,6 +20,20 @@ class ResolveRgBinTest(unittest.TestCase):
         ):
             self.assertEqual(resolve_rg_bin(spec, None).as_posix(), "/usr/bin/rg")
 
+    def test_riscv64a23_native_build_uses_system_ripgrep(self) -> None:
+        spec = TARGET_SPECS["riscv64a23-unknown-linux-gnu"]
+
+        with (
+            patch(
+                "scripts.codex_package.ripgrep.platform.machine",
+                return_value="riscv64",
+            ),
+            patch(
+                "scripts.codex_package.ripgrep.shutil.which", return_value="/usr/bin/rg"
+            ),
+        ):
+            self.assertEqual(resolve_rg_bin(spec, None).as_posix(), "/usr/bin/rg")
+
 
 if __name__ == "__main__":
     unittest.main()

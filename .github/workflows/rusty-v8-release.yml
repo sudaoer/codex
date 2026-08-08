@@ -159,6 +159,20 @@ jobs:
             bazel_config: ci-v8
             platform: linux_riscv64
             sandbox: false
+            target: riscv64a23-unknown-linux-gnu
+            v8_cpu: riscv64a23
+            variant: release
+          - runner: ubuntu-24.04
+            bazel_config: ci-v8
+            platform: linux_riscv64
+            sandbox: true
+            target: riscv64a23-unknown-linux-gnu
+            v8_cpu: riscv64a23
+            variant: ptrcomp-sandbox
+          - runner: ubuntu-24.04
+            bazel_config: ci-v8
+            platform: linux_riscv64
+            sandbox: false
             target: riscv64gc-unknown-linux-gnu
             v8_cpu: riscv64
             variant: release

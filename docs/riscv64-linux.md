@@ -1,7 +1,8 @@
 # RISC-V 64-bit Linux
 
-Codex supports `riscv64gc-unknown-linux-gnu` for native development and
-`riscv64gc-unknown-linux-musl` for release packages. The release workflow
+Codex supports `riscv64gc-unknown-linux-gnu` for the baseline RISC-V build,
+`riscv64gc-unknown-linux-musl` for release packages, and the explicit
+RVA23U64 target `riscv64a23-unknown-linux-gnu`. The release workflow
 cross-compiles RISC-V artifacts on an x86_64 Linux runner.
 
 ## Development build
@@ -18,6 +19,30 @@ export CFLAGS_riscv64gc_unknown_linux_gnu=-I/opt/codex-riscv64-sysroot/usr/inclu
 export CARGO_TARGET_RISCV64GC_UNKNOWN_LINUX_GNU_RUSTFLAGS='-C link-arg=-Wl,-rpath-link,/opt/codex-riscv64-sysroot/usr/lib/riscv64-linux-gnu'
 cargo build --locked --target riscv64gc-unknown-linux-gnu --bin codex
 ```
+
+For an RVA23U64 build, install Rust's official GNU target and use the same
+cross sysroot with the target-specific environment variable names:
+
+```sh
+rustup target add riscv64a23-unknown-linux-gnu
+export CARGO_TARGET_RISCV64A23_UNKNOWN_LINUX_GNU_LINKER=riscv64-linux-gnu-gcc
+export OPENSSL_LIB_DIR=/opt/codex-riscv64-sysroot/usr/lib/riscv64-linux-gnu
+export OPENSSL_INCLUDE_DIR=/opt/codex-riscv64-sysroot/usr/include
+export CFLAGS_riscv64a23_unknown_linux_gnu=-I/opt/codex-riscv64-sysroot/usr/include/riscv64-linux-gnu
+export CARGO_TARGET_RISCV64A23_UNKNOWN_LINUX_GNU_RUSTFLAGS='-C link-arg=-Wl,-rpath-link,/opt/codex-riscv64-sysroot/usr/lib/riscv64-linux-gnu'
+cargo build --locked --target riscv64a23-unknown-linux-gnu --bin codex
+```
+
+The Rust 1.95.0 toolchain used for the current cross-build also has an
+optimized RISC-V code-generation failure in the LLVM loop vectorizer while
+building the full `codex` binary. The unoptimized debug binary and the
+optimized `codex-code-mode-host` build succeed; use a newer Rust/LLVM toolchain
+for an optimized full CLI release if this failure reproduces.
+
+Rust currently provides the official RVA23 target for GNU Linux, not a
+`riscv64a23-unknown-linux-musl` target. Keep the musl release on `rv64gc`
+until Rust publishes a matching musl target; do not substitute a custom JSON
+target in stable release builds.
 
 The OpenSSL headers and shared libraries in the sysroot must come from the same
 target distribution release. A static Bianbu OpenSSL link also needs its
@@ -42,10 +67,11 @@ sandbox. Code mode remains enabled, but its address-space isolation is weaker
 than on a host that can reserve the complete V8 sandbox. This is an accepted
 platform limitation, not a silent change to the code-mode feature set.
 
-The V8 build disables Highway's optional RVV runtime-dispatch path so the
-published binary keeps the Rust target's `rv64gc` baseline and does not require
-the V extension. This affects SIMD acceleration in Highway users, not V8's
-RISC-V JIT support.
+The V8 `rv64gc` build disables Highway's optional RVV runtime-dispatch path so
+the baseline binary does not require the V extension. The separate RVA23 V8
+pair is compiled with `-march=rva23u64`, which enables the mandatory V/RVV
+instructions for that target. These settings affect SIMD acceleration in
+Highway users, not V8's RISC-V JIT support.
 
 ## Release package contents
 

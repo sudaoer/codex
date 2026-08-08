@@ -1,10 +1,12 @@
 # What: synchronize V8's RISC-V Bazel source list with its GN build.
-# Scope: BUILD.bazel metadata only. The stale extension-riscv-inl.h entry is
-# absent from the 15.0.245.2 archive, while several current implementation and
-# extension and compiler backend headers are present in BUILD.gn but missing
-# from BUILD.bazel. The RISC-V push-register assembly also moved from the
-# obsolete riscv64 directory to riscv, and x64-hosted RISC-V snapshot tools
-# need the trap-handler simulator sources.
+# Scope: BUILD.bazel metadata plus a guarded CPU feature-detection fallback.
+# The stale extension-riscv-inl.h entry is absent from the 15.0.245.2 archive,
+# while several current implementation and compiler backend headers are present
+# in BUILD.gn but missing from BUILD.bazel. The RISC-V push-register assembly
+# also moved from the obsolete riscv64 directory to riscv, and x64-hosted
+# RISC-V snapshot tools need the trap-handler simulator sources. The source
+# fallback keeps the cross build usable with older GNU sysroots that do not yet
+# ship Linux's riscv_hwprobe UAPI headers.
 
 diff --git a/orig/v8-15.0.245.2/BUILD.bazel b/mod/v8-15.0.245.2/BUILD.bazel
 index ea3a791..4745cb9 100644
@@ -136,3 +138,67 @@ index e4d8c31..fb138b9 100644
 +
  config_setting(
      name = "is_linux",
+
+diff --git a/orig/v8-15.0.245.2/src/base/cpu/cpu-riscv.cc b/mod/v8-15.0.245.2/src/base/cpu/cpu-riscv.cc
+index 0d5cf48..e1f4be3 100644
+--- a/orig/v8-15.0.245.2/src/base/cpu/cpu-riscv.cc
++++ b/mod/v8-15.0.245.2/src/base/cpu/cpu-riscv.cc
+@@ -28,11 +28,23 @@
+ #ifdef V8_HOST_ARCH_RISCV64
++#if __has_include(<asm/hwprobe.h>)
+ #include <asm/hwprobe.h>
++#define V8_HAS_RISCV_HWPROBE 1
++#else
++#define V8_HAS_RISCV_HWPROBE 0
++#endif
++#if __has_include(<riscv_vector.h>)
+ #include <riscv_vector.h>
++#define V8_HAS_RISCV_VECTOR 1
++#else
++#define V8_HAS_RISCV_VECTOR 0
++#endif
+ // The __riscv_vlenb intrinsic is only available when compiling with the RVV
+ // extension enabled. Use the 'target' attribute to tell the compiler to
+ // compile this function with RVV enabled.
+ // We must not call this function when RVV is not supported by the CPU.
++#if V8_HAS_RISCV_VECTOR
+ __attribute__((target("arch=+v"))) static unsigned vlen_intrinsic() {
+   return static_cast<unsigned>(__riscv_vlenb() * 8);
+ }
++#endif
+ #endif
+@@ -42,6 +54,7 @@ void CPU::DetectFeatures() {
+ #ifdef V8_HOST_ARCH_RISCV64
+ #if V8_OS_LINUX
+   CPUInfo cpu_info;
++#if V8_HAS_RISCV_HWPROBE
+   riscv_hwprobe pairs[] = {{RISCV_HWPROBE_KEY_IMA_EXT_0, 0}};
+   if (!syscall(__NR_riscv_hwprobe, &pairs,
+                sizeof(pairs) / sizeof(riscv_hwprobe), 0, nullptr, 0)) {
+@@ -67,3 +80,17 @@ void CPU::DetectFeatures() {
+       has_rvc_ = true;
+     }
+   }
++#else
++  // Some cross sysroots predate Linux's riscv_hwprobe UAPI. For an RVA23
++  // compile the mandatory scalar/vector features are safe to use; retain a
++  // conservative zero-feature result for older generic RISC-V builds.
++#if defined(__riscv_vector)
++  has_rvv_ = true;
++#endif
++#if defined(__riscv_flen)
++  has_fpu_ = true;
++#endif
++#if defined(__riscv_compressed)
++  has_rvc_ = true;
++#endif
++#endif
+@@ -81,6 +108,8 @@ void CPU::DetectFeatures() {
+ #endif
+   if (has_rvv_) {
++#if V8_HAS_RISCV_VECTOR
+     vlen_ = vlen_intrinsic();
++#endif
+   }
+ #endif
+ }

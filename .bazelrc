@@ -219,6 +219,11 @@ common:v8-target-riscv64 --@v8//bazel/config:v8_target_cpu=riscv64
 # Preserve the rv64gc baseline. Highway otherwise enables its RVV runtime
 # dispatch path on every RISC-V build, even when the compiler target lacks V.
 common:v8-target-riscv64 --copt=-DHWY_DISABLED_TARGETS=HWY_RVV
+# RVA23U64 makes V mandatory. Build a separate profile artifact with RVV
+# enabled and pass the profile to both C and C++ compilation actions.
+common:v8-target-riscv64a23 --@v8//bazel/config:v8_target_cpu=riscv64
+common:v8-target-riscv64a23 --copt=-march=rva23u64
+common:v8-target-riscv64a23 --cxxopt=-march=rva23u64
 
 # Match rusty_v8's upstream GN release contract for published artifacts: every
 # target object uses Chromium's custom libc++ headers and the archive folds in

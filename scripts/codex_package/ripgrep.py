@@ -20,7 +20,7 @@ def resolve_rg_bin(spec: TargetSpec, rg_bin: Path | None) -> Path:
     # ripgrep does not publish a riscv64 Linux archive. Native riscv64 builds
     # can use the host installation; cross-built release packages pass an
     # explicit source-built musl binary with --rg-bin.
-    if spec.target.startswith("riscv64gc-") and platform.machine() == "riscv64":
+    if spec.target.startswith("riscv64") and platform.machine() == "riscv64":
         host_rg = shutil.which("rg")
         if host_rg is not None:
             return Path(host_rg).resolve()
