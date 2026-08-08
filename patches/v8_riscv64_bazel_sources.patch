@@ -1,0 +1,138 @@
+# What: synchronize V8's RISC-V Bazel source list with its GN build.
+# Scope: BUILD.bazel metadata only. The stale extension-riscv-inl.h entry is
+# absent from the 15.0.245.2 archive, while several current implementation and
+# extension and compiler backend headers are present in BUILD.gn but missing
+# from BUILD.bazel. The RISC-V push-register assembly also moved from the
+# obsolete riscv64 directory to riscv, and x64-hosted RISC-V snapshot tools
+# need the trap-handler simulator sources.
+
+diff --git a/orig/v8-15.0.245.2/BUILD.bazel b/mod/v8-15.0.245.2/BUILD.bazel
+index ea3a791..4745cb9 100644
+--- a/orig/v8-15.0.245.2/BUILD.bazel
++++ b/mod/v8-15.0.245.2/BUILD.bazel
+@@ -2908,9 +2908,13 @@ filegroup(
+             "src/baseline/riscv/baseline-assembler-riscv-inl.h",
+             "src/baseline/riscv/baseline-compiler-riscv-inl.h",
++            "src/codegen/riscv/assembler-riscv.cc",
+             "src/codegen/riscv/assembler-riscv-inl.h",
+             "src/codegen/riscv/assembler-riscv.h",
++            "src/codegen/riscv/base-assembler-riscv.cc",
+             "src/codegen/riscv/base-assembler-riscv.h",
++            "src/codegen/riscv/base-constants-riscv.cc",
+             "src/codegen/riscv/base-constants-riscv.h",
++            "src/codegen/riscv/base-riscv-i.cc",
+             "src/codegen/riscv/base-riscv-i.h",
+             "src/codegen/riscv/constant-pool-riscv.cc",
+             "src/codegen/riscv/constant-pool-riscv.h",
+@@ -2920,26 +2924,44 @@ filegroup(
+             "src/codegen/riscv/constant-riscv-d.h",
+             "src/codegen/riscv/constant-riscv-f.h",
++            "src/codegen/riscv/constant-riscv-i.h",
+             "src/codegen/riscv/constant-riscv-m.h",
+             "src/codegen/riscv/constant-riscv-v.h",
+             "src/codegen/riscv/constant-riscv-zfa.h",
++            "src/codegen/riscv/constant-riscv-zfh.h",
++            "src/codegen/riscv/constant-riscv-zicond.h",
+             "src/codegen/riscv/constant-riscv-zicsr.h",
+             "src/codegen/riscv/constant-riscv-zifencei.h",
++            "src/codegen/riscv/constant-riscv-zimop.h",
+             "src/codegen/riscv/constants-riscv.h",
++            "src/codegen/riscv/cpu-riscv.cc",
++            "src/codegen/riscv/extension-riscv-a.cc",
+             "src/codegen/riscv/extension-riscv-a.h",
++            "src/codegen/riscv/extension-riscv-b.cc",
+             "src/codegen/riscv/extension-riscv-b.h",
++            "src/codegen/riscv/extension-riscv-c.cc",
+             "src/codegen/riscv/extension-riscv-c.h",
++            "src/codegen/riscv/extension-riscv-d.cc",
+             "src/codegen/riscv/extension-riscv-d.h",
++            "src/codegen/riscv/extension-riscv-f.cc",
+             "src/codegen/riscv/extension-riscv-f.h",
+-            "src/codegen/riscv/extension-riscv-inl.h",
++            "src/codegen/riscv/extension-riscv-m.cc",
+             "src/codegen/riscv/extension-riscv-m.h",
++            "src/codegen/riscv/extension-riscv-v.cc",
+             "src/codegen/riscv/extension-riscv-v.h",
+             "src/codegen/riscv/extension-riscv-zfa.cc",
+             "src/codegen/riscv/extension-riscv-zfa.h",
++            "src/codegen/riscv/extension-riscv-zfh.cc",
++            "src/codegen/riscv/extension-riscv-zfh.h",
++            "src/codegen/riscv/extension-riscv-zicond.cc",
++            "src/codegen/riscv/extension-riscv-zicond.h",
++            "src/codegen/riscv/extension-riscv-zicsr.cc",
+             "src/codegen/riscv/extension-riscv-zicsr.h",
++            "src/codegen/riscv/extension-riscv-zifencei.cc",
+             "src/codegen/riscv/extension-riscv-zifencei.h",
+             "src/codegen/riscv/extension-riscv-zimop.cc",
+             "src/codegen/riscv/extension-riscv-zimop.h",
+             "src/codegen/riscv/interface-descriptors-riscv-inl.h",
++            "src/codegen/riscv/macro-assembler-riscv.cc",
+             "src/codegen/riscv/macro-assembler-riscv.h",
+             "src/codegen/riscv/register-riscv.h",
+             "src/codegen/riscv/reglist-riscv.h",
+@@ -3003,7 +3025,11 @@ filegroup(
+     }) + select({
+         "@v8//bazel/config:v8_arm64_simulator": [
+             "src/trap-handler/handler-outside-simulator.cc",
+             "src/trap-handler/trap-handler-simulator.h",
+         ],
++        "@v8//bazel/config:v8_riscv64_simulator": [
++            "src/trap-handler/handler-outside-simulator.cc",
++            "src/trap-handler/trap-handler-simulator.h",
++        ],
+         "//conditions:default": [],
+     }) + select({
+@@ -3768,7 +3794,9 @@ filegroup(
+             "src/compiler/backend/riscv/code-generator-riscv.cc",
+             "src/compiler/backend/riscv/instruction-codes-riscv.h",
+             "src/compiler/backend/riscv/instruction-scheduler-riscv.cc",
++            "src/compiler/backend/riscv/instruction-selector-riscv.h",
+             "src/compiler/backend/riscv/instruction-selector-riscv64.cc",
++            "src/compiler/backend/riscv/register-constraints-riscv.h",
+         ],
+         "@v8//bazel/config:v8_target_ppc64le": [
+             "src/compiler/backend/ppc/code-generator-ppc.cc",
+@@ -3879,6 +3907,8 @@ filegroup(
+             "src/maglev/maglev-phi-representation-selector.cc",
+             "src/maglev/maglev-phi-representation-selector.h",
+             "src/maglev/maglev-tracer.h",
++            "src/maglev/maglev-map-inference.h",
++            "src/maglev/maglev-regalloc-node-info.h",
+             "src/maglev/maglev-truncation.cc",
+             "src/maglev/maglev-truncation.h",
+             "src/maglev/maglev-post-hoc-optimizations-processors.h",
+@@ -4136,7 +4166,7 @@ filegroup(
+         "@v8//bazel/config:is_inline_asm_arm": ["src/heap/base/asm/arm/push_registers_asm.cc"],
+         "@v8//bazel/config:is_inline_asm_arm64": ["src/heap/base/asm/arm64/push_registers_asm.cc"],
+         "@v8//bazel/config:is_inline_asm_s390x": ["src/heap/base/asm/s390/push_registers_asm.cc"],
+-        "@v8//bazel/config:is_inline_asm_riscv64": ["src/heap/base/asm/riscv64/push_registers_asm.cc"],
++        "@v8//bazel/config:is_inline_asm_riscv64": ["src/heap/base/asm/riscv/push_registers_asm.cc"],
+         "@v8//bazel/config:is_inline_asm_ppc64le": ["src/heap/base/asm/ppc/push_registers_asm.cc"],
+         "@v8//bazel/config:is_msvc_asm_ia32": ["src/heap/base/asm/ia32/push_registers_asm.cc"],
+         "@v8//bazel/config:is_msvc_asm_x64": ["src/heap/base/asm/x64/push_registers_masm.asm"],
+
+diff --git a/orig/v8-15.0.245.2/bazel/config/BUILD.bazel b/mod/v8-15.0.245.2/bazel/config/BUILD.bazel
+index e4d8c31..fb138b9 100644
+--- a/orig/v8-15.0.245.2/bazel/config/BUILD.bazel
++++ b/mod/v8-15.0.245.2/bazel/config/BUILD.bazel
+@@ -137,11 +137,20 @@ selects.config_setting_group(
+ # Running arm64 simulator on x64 host.
+ selects.config_setting_group(
+     name = "v8_arm64_simulator",
+     match_all = [
+         ":v8_target_arm64",
+         ":is_x64",
+     ],
+ )
+ 
++# Running the riscv64 simulator on an x64 host.
++selects.config_setting_group(
++    name = "v8_riscv64_simulator",
++    match_all = [
++        ":v8_target_riscv64",
++        ":is_x64",
++    ],
++)
++
+ config_setting(
+     name = "is_linux",

@@ -86,6 +86,18 @@ TARGET_SPECS: dict[str, TargetSpec] = {
         is_linux=True,
         dotslash_platform="linux-aarch64",
     ),
+    "riscv64gc-unknown-linux-gnu": TargetSpec(
+        target="riscv64gc-unknown-linux-gnu",
+        is_windows=False,
+        is_linux=True,
+        dotslash_platform="linux-riscv64",
+    ),
+    "riscv64gc-unknown-linux-musl": TargetSpec(
+        target="riscv64gc-unknown-linux-musl",
+        is_windows=False,
+        is_linux=True,
+        dotslash_platform="linux-riscv64",
+    ),
     "x86_64-apple-darwin": TargetSpec(
         target="x86_64-apple-darwin",
         is_windows=False,
@@ -117,6 +129,7 @@ HOST_RELEASE_TARGETS: dict[tuple[str, str], str] = {
     ("darwin", "aarch64"): "aarch64-apple-darwin",
     ("darwin", "x86_64"): "x86_64-apple-darwin",
     ("linux", "aarch64"): "aarch64-unknown-linux-musl",
+    ("linux", "riscv64"): "riscv64gc-unknown-linux-musl",
     ("linux", "x86_64"): "x86_64-unknown-linux-musl",
     ("windows", "aarch64"): "aarch64-pc-windows-msvc",
     ("windows", "x86_64"): "x86_64-pc-windows-msvc",

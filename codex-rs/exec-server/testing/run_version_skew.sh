@@ -21,6 +21,7 @@ case "$(uname -s):$(uname -m)" in
   Darwin:arm64) target="aarch64-apple-darwin" ;;
   Darwin:x86_64) target="x86_64-apple-darwin" ;;
   Linux:aarch64 | Linux:arm64) target="aarch64-unknown-linux-musl" ;;
+  Linux:riscv64) target="riscv64gc-unknown-linux-musl" ;;
   Linux:x86_64) target="x86_64-unknown-linux-musl" ;;
   *)
     echo "Unsupported platform: $(uname -s) $(uname -m)" >&2

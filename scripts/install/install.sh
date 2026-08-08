@@ -1090,6 +1090,9 @@ case "$(uname -m)" in
   arm64 | aarch64)
     arch="aarch64"
     ;;
+  riscv64)
+    arch="riscv64"
+    ;;
   *)
     echo "Unsupported architecture: $(uname -m)" >&2
     exit 1
@@ -1117,6 +1120,10 @@ else
     npm_tag="linux-arm64"
     vendor_target="aarch64-unknown-linux-musl"
     platform_label="Linux (ARM64)"
+  elif [ "$arch" = "riscv64" ]; then
+    npm_tag="linux-riscv64"
+    vendor_target="riscv64gc-unknown-linux-musl"
+    platform_label="Linux (RISC-V 64-bit)"
   else
     npm_tag="linux-x64"
     vendor_target="x86_64-unknown-linux-musl"

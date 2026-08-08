@@ -131,6 +131,32 @@ class InstallShTest(unittest.TestCase):
             )
             self.assertTrue(os.access(host_path, os.X_OK))
 
+    def test_riscv64_linux_installs_verified_package(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            target = "riscv64gc-unknown-linux-musl"
+            archive_path, checksum_path, metadata_json = create_package_release(
+                root,
+                target=target,
+            )
+
+            result, requests = run_installer_in(
+                root,
+                VERSION,
+                metadata_json=metadata_json,
+                archive_path=archive_path,
+                checksum_path=checksum_path,
+                force_riscv64_linux=True,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("Linux (RISC-V 64-bit)", result.stdout)
+            self.assertEqual(
+                requests[-1],
+                "https://github.com/openai/codex/releases/download/"
+                f"rust-v{VERSION}/codex-package-{target}.tar.gz",
+            )
+
     def test_releases_latest_installs_verified_package_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -534,6 +560,7 @@ def run_installer_in(
     releases_checksum_path: Path | None = None,
     legacy_archive_path: Path | None = None,
     force_macos: bool = False,
+    force_riscv64_linux: bool = False,
     use_mirror: bool | None = False,
     releases_mode: str = "",
 ) -> tuple[subprocess.CompletedProcess[str], list[str]]:
@@ -647,6 +674,17 @@ def run_installer_in(
             encoding="utf-8",
         )
         fake_uname.chmod(0o755)
+    elif force_riscv64_linux:
+        fake_uname = bin_dir / "uname"
+        fake_uname.write_text(
+            "#!/bin/sh\n"
+            'case "$1" in\n'
+            "  -s) printf 'Linux\\n' ;;\n"
+            "  -m) printf 'riscv64\\n' ;;\n"
+            "esac\n",
+            encoding="utf-8",
+        )
+        fake_uname.chmod(0o755)
 
     home = root / "home"
     home.mkdir(exist_ok=True)
@@ -706,6 +744,7 @@ def create_package_release(
     root: Path,
     *,
     metadata_version: str = VERSION,
+    target: str = "aarch64-apple-darwin",
 ) -> tuple[Path, Path, str]:
     package_dir = root / "package"
     (package_dir / "bin").mkdir(parents=True)
@@ -720,8 +759,14 @@ def create_package_release(
         "#!/bin/sh\nexit 0\n",
     )
     write_executable(package_dir / "codex-path" / "rg", "#!/bin/sh\nexit 0\n")
+    if "linux" in target:
+        (package_dir / "codex-resources").mkdir()
+        write_executable(
+            package_dir / "codex-resources" / "bwrap",
+            "#!/bin/sh\nexit 0\n",
+        )
 
-    asset = "codex-package-aarch64-apple-darwin.tar.gz"
+    asset = f"codex-package-{target}.tar.gz"
     archive_path = root / asset
     with tarfile.open(archive_path, "w:gz") as archive:
         for path in package_dir.iterdir():
@@ -790,6 +835,7 @@ def release_metadata(*, compact: bool = False, reorder: bool = False) -> str:
             "aarch64-apple-darwin",
             "x86_64-apple-darwin",
             "aarch64-unknown-linux-musl",
+            "riscv64gc-unknown-linux-musl",
             "x86_64-unknown-linux-musl",
         )
     ]

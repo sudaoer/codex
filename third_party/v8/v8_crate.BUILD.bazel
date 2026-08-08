@@ -36,6 +36,11 @@ filegroup(
 )
 
 filegroup(
+    name = "src_binding_release_riscv64gc_unknown_linux_gnu",
+    srcs = ["gen/src_binding_release_riscv64gc-unknown-linux-gnu.rs"],
+)
+
+filegroup(
     name = "src_binding_release_x86_64_pc_windows_msvc",
     srcs = ["gen/src_binding_release_x86_64-pc-windows-msvc.rs"],
 )
