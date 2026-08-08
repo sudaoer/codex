@@ -155,6 +155,20 @@ jobs:
             target: aarch64-unknown-linux-musl
             v8_cpu: arm64
             variant: ptrcomp-sandbox
+          - runner: ubuntu-24.04
+            bazel_config: ci-v8
+            platform: linux_riscv64_musl
+            sandbox: false
+            target: riscv64gc-unknown-linux-musl
+            v8_cpu: riscv64
+            variant: release
+          - runner: ubuntu-24.04
+            bazel_config: ci-v8
+            platform: linux_riscv64_musl
+            sandbox: true
+            target: riscv64gc-unknown-linux-musl
+            v8_cpu: riscv64
+            variant: ptrcomp-sandbox
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2

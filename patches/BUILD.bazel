@@ -13,6 +13,7 @@ exports_files([
     "ring_windows_msvc_include_dirs.patch",
     "v8_bazel_rules.patch",
     "v8_module_deps.patch",
+    "v8_riscv64_bazel_sources.patch",
     "v8_source_portability.patch",
     "webrtc-sys_hermetic_darwin_sysroot.patch",
     "windows-link.patch",
